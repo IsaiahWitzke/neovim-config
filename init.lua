@@ -1,3 +1,6 @@
+-- split right...
+vim.opt.splitright = true
+
 -- Make sure to setup `mapleader` and `maplocalleader` before
 -- loading lazy.nvim so that mappings are correct.
 vim.g.mapleader = " "
@@ -49,15 +52,43 @@ lspconfig.pyright.setup{
 }
 
 vim.keymap.set("t", "<Esc>", [[<C-\><C-n>]])
-vim.keymap.set("n", "<leader>ts", [[<C-w>s <C-w>j <cmd>terminal<CR>]])
+--
+-- vim.keymap.set("n", "<leader>ts", [[<C-w>s <C-w>j <cmd>terminal<CR>]])
 
-vim.keymap.set("n", "<leader>ct", function()
-  local chat = require("CopilotChat")
-  chat.toggle()
-end, { desc = "Toggle Copilot" })
+-- open terminal in a split window, if one already exists, switch focus to it
+-- if currently in terminal, switch back to the previous window
+local previous_win = nil
+
+vim.keymap.set('n', '<C-`>', function()
+  local term_bufnr = nil
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    local buf = vim.api.nvim_win_get_buf(win)
+    if vim.bo[buf].buftype == 'terminal' then
+      term_bufnr = buf
+      if vim.api.nvim_get_current_win() == win then
+        -- If already in terminal, switch back to the previous window
+        if previous_win and vim.api.nvim_win_is_valid(previous_win) then
+          vim.api.nvim_set_current_win(previous_win)
+        end
+        return
+      else
+        -- Save the current window before switching to the terminal
+        previous_win = vim.api.nvim_get_current_win()
+        vim.api.nvim_set_current_win(win)
+        return
+      end
+    end
+  end
+
+  -- If no terminal is found, open one and save the current window
+  if not term_bufnr then
+    previous_win = vim.api.nvim_get_current_win()
+    vim.cmd('botright split | resize 15% | terminal')
+  end
+end, { noremap = true, silent = true })
+
 
 -- vim.api.nvim_set_hl(0, "NormalFloat", { bg = "#e3d4d3", fg = "#4a394a" })
 vim.api.nvim_set_hl(0, "NormalFloat", { link = "Normal" })
 vim.api.nvim_set_hl(0, "FloatBorder", { link = "Normal" })
-
 

@@ -218,7 +218,7 @@ return {
       nesting_rules = {},
       filesystem = {
         filtered_items = {
-          visible = false, -- when true, they will just be displayed differently than normal items
+          visible = true, -- when true, they will just be displayed differently than normal items
           hide_dotfiles = false,
           hide_gitignored = false,
           -- hide_hidden = true, -- only works on Windows for hidden files/directories
@@ -256,8 +256,20 @@ return {
         -- "disabled",    -- netrw left alone, neo-tree does not handle opening dirs
         use_libuv_file_watcher = false, -- This will use the OS level file watchers to detect changes
         -- instead of relying on nvim autocmd events.
+
+        commands = {
+          search_visible = function(state)
+            local node = state.tree:get_node()
+            local path = node:get_id()
+            require("telescope.builtin").find_files({
+              cwd = path,
+              hidden = true, -- Include hidden files if necessary
+            })
+          end,
+        },
         window = {
           mappings = {
+            ["/"] = "",
             ["<bs>"] = "navigate_up",
             ["."] = "set_root",
             ["H"] = "toggle_hidden",
@@ -292,8 +304,6 @@ return {
             -- ['<key>'] = function(state, scroll_padding) ... end,
           },
         },
-
-        commands = {}, -- Add a custom command or override a global one using the same function name
       },
       buffers = {
         follow_current_file = {
@@ -349,5 +359,7 @@ return {
         },
       },
     })
+    -- Focus the Neotree window by default
+    vim.cmd("Neotree focus")
   end,
 }
