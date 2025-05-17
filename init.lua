@@ -34,7 +34,7 @@ vim.cmd("colorscheme vim")
 local lspconfig = require('lspconfig')
 
 -- Configure pyright
-lspconfig.pyright.setup{}
+-- lspconfig.pyright.setup{}
 
 -- Optional: Add keybindings for code actions
 local on_attach = function(client, bufnr)
@@ -84,6 +84,7 @@ vim.keymap.set('n', '<C-`>', function()
   if not term_bufnr then
     previous_win = vim.api.nvim_get_current_win()
     vim.cmd('botright split | resize 15% | terminal')
+    vim.cmd('startinsert')
   end
 end, { noremap = true, silent = true })
 

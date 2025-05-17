@@ -1,3 +1,15 @@
+function goto_c_implementation()
+  local word = vim.fn.expand("<cword>")
+  local h_file = vim.api.nvim_buf_get_name(0)
+  local c_file = h_file:gsub("%.h$", ".c")
+  if vim.fn.filereadable(c_file) == 1 then
+    vim.cmd("edit " .. c_file)
+    vim.cmd("/\\v^\\s*\\w+\\s+\\**" .. word .. "\\s*\\(")
+  else
+    print("Corresponding .c file not found: " .. c_file)
+  end
+end
+
 return {
   "neovim/nvim-lspconfig",
   -- event = "LazyFile",
@@ -111,6 +123,11 @@ return {
               formatFallbackStyle = "LLVM",
             },
           },
+          on_attach = function(client, bufnr)
+            vim.keymap.set("n", "<leader>ci", function()
+              goto_c_implementation()
+            end, { buffer = bufnr, desc = "Go to C implementation" })
+          end,
         },
       },
       -- you can do any additional lsp server setup here
@@ -125,20 +142,54 @@ return {
         -- Specify * to use this function as a fallback for any server
         -- ["*"] = function(server, opts) end,
       },
+
+      on_attach = function (client, bufnr)
+        -- Add any additional on_attach functionality here
+        -- e.g. keymaps, formatting, etc.
+        if client.server_capabilities.documentHighlightProvider then
+          vim.api.nvim_create_augroup("LspDocumentHighlight", { clear = true })
+          vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+            group = "LspDocumentHighlight",
+            buffer = bufnr,
+            callback = function()
+              vim.lsp.buf.document_highlight()
+            end,
+          })
+          vim.api.nvim_create_autocmd("CursorMoved", {
+            group = "LspDocumentHighlight",
+            buffer = bufnr,
+            callback = function()
+              vim.lsp.buf.clear_references()
+            end,
+          })
+
+          -- keybinds to call go to def and references using telescope lsp stuff
+          vim.keymap.set("n", "gd", function()
+            require("telescope.builtin").lsp_definitions({
+              show_line = false,
+              jump_type = "never",
+            })
+          end, { buffer = bufnr, desc = "Go to definition" })
+          vim.keymap.set("n", "gr", function()
+            require("telescope.builtin").lsp_references({
+              show_line = false,
+              jump_type = "never",
+            })
+          end, { buffer = bufnr, desc = "Go to references" })
+          vim.keymap.set("n", "gi", function()
+            require("telescope.builtin").lsp_implementations({
+              show_line = false,
+              jump_type = "never",
+            })
+          end, { buffer = bufnr, desc = "Go to implementations" })
+        end
+      end
     }
     return ret
   end,
 
   ---@param opts PluginLspOpts
   config = function(_, opts)
-    -- setup autoformat
-    -- LazyVim.format.register(LazyVim.lsp.formatter())
-
-    -- setup keymaps
-    -- LazyVim.lsp.on_attach(function(client, buffer)
-    --   require("lazyvim.plugins.lsp.keymaps").on_attach(client, buffer)
-    -- end)
-
     vim.diagnostic.config(vim.deepcopy(opts.diagnostics))
 
     local servers = opts.servers
@@ -156,6 +207,14 @@ return {
     local function setup(server)
       local server_opts = vim.tbl_deep_extend("force", {
         capabilities = vim.deepcopy(capabilities),
+        on_attach = function(client, bufnr)
+          if opts.on_attach then
+            opts.on_attach(client, bufnr)
+          end
+          if opts.servers[server] and opts.servers[server].on_attach then
+            opts.servers[server].on_attach(client, bufnr)
+          end
+        end,
       }, servers[server] or {})
       if server_opts.enabled == false then
         return
@@ -173,14 +232,6 @@ return {
       require("lspconfig")[server].setup(server_opts)
     end
 
-    -- get all the servers that are available through mason-lspconfig
-    -- local have_mason, mlsp = pcall(require, "mason-lspconfig")
-    -- local all_mslp_servers = {}
-    -- if have_mason then
-    --   all_mslp_servers = vim.tbl_keys(require("mason-lspconfig.mappings.server").lspconfig_to_package)
-    -- end
-
-    -- local ensure_installed = {} ---@type string[]
     for server, server_opts in pairs(servers) do
         setup(server)
     end
