@@ -129,6 +129,8 @@ return {
             end, { buffer = bufnr, desc = "Go to C implementation" })
           end,
         },
+        gopls = {},
+        rust_analyzer = {},
       },
       -- you can do any additional lsp server setup here
       -- return true if you don't want this server to be setup with lspconfig
@@ -146,6 +148,8 @@ return {
       on_attach = function (client, bufnr)
         -- Add any additional on_attach functionality here
         -- e.g. keymaps, formatting, etc.
+        vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Code action" })
+
         if client.server_capabilities.documentHighlightProvider then
           vim.api.nvim_create_augroup("LspDocumentHighlight", { clear = true })
           vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {

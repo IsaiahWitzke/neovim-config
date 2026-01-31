@@ -5,7 +5,7 @@ return {
   },
   lazy = false,
   opts = {
-    ensure_installed = { "lua_ls", "pyright", "ts_ls" },
+    ensure_installed = { "lua_ls", "pyright", "ts_ls", "gopls", "rust_analyzer" },
   },
   config = true,
 }

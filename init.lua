@@ -26,6 +26,13 @@ vim.opt.termguicolors = true
 -- Use system clipboard
 vim.opt.clipboard = "unnamedplus"
 
+-- Auto-reload files changed externally
+vim.opt.autoread = true
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
+  command = "if mode() != 'c' | checktime | endif",
+  pattern = { "*" },
+})
+
 require("config.lazy")
 
 vim.keymap.set("n", "<leader>e", "<Cmd>Neotree reveal<CR>")
