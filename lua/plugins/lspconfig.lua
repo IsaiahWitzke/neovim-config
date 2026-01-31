@@ -178,6 +178,10 @@ return {
             require("telescope.builtin").lsp_references({
               show_line = false,
               jump_type = "never",
+              layout_strategy = "vertical",
+              layout_config = {
+                preview_height = 0.5,
+              },
             })
           end, { buffer = bufnr, desc = "Go to references" })
           vim.keymap.set("n", "gi", function()

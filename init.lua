@@ -26,6 +26,9 @@ vim.opt.termguicolors = true
 -- Use system clipboard
 vim.opt.clipboard = "unnamedplus"
 
+-- Suppress deprecation warnings (lspconfig migration to vim.lsp.config)
+vim.deprecate = function() end
+
 -- Auto-reload files changed externally
 vim.opt.autoread = true
 vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
@@ -36,6 +39,7 @@ vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHo
 require("config.lazy")
 
 vim.keymap.set("n", "<leader>e", "<Cmd>Neotree reveal<CR>")
+vim.keymap.set("n", "<leader>E", "<Cmd>Neotree toggle<CR>")
 vim.cmd("colorscheme vim")
 
 local lspconfig = require('lspconfig')
