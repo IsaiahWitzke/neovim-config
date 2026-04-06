@@ -10,7 +10,7 @@ return {
         claude = {
           max_tokens = 512,
           model = "claude-sonnet-4-20250514",
-          api_key = "WARP_DEV_ANTHROPIC_API_KEY", -- env var name
+          api_key = "ANTHROPIC_API_KEY",
           stream = true,
         },
       },

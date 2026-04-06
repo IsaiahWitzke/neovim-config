@@ -29,6 +29,12 @@ vim.opt.clipboard = "unnamedplus"
 -- Suppress deprecation warnings (lspconfig migration to vim.lsp.config)
 vim.deprecate = function() end
 
+-- Treesitter compatibility shim for older plugins
+vim.treesitter.language = vim.treesitter.language or {}
+vim.treesitter.language.ft_to_lang = vim.treesitter.language.ft_to_lang
+  or vim.treesitter.language.get_lang
+  or function(ft) return ft end
+
 -- Auto-reload files changed externally
 vim.opt.autoread = true
 vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
@@ -40,7 +46,7 @@ require("config.lazy")
 
 vim.keymap.set("n", "<leader>e", "<Cmd>Neotree reveal<CR>")
 vim.keymap.set("n", "<leader>E", "<Cmd>Neotree toggle<CR>")
-vim.cmd("colorscheme vim")
+-- colorscheme set in lua/plugins/colorscheme.lua
 
 local lspconfig = require('lspconfig')
 

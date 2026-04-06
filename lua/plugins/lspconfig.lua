@@ -129,8 +129,40 @@ return {
             end, { buffer = bufnr, desc = "Go to C implementation" })
           end,
         },
-        gopls = {},
+        gopls = {
+          settings = {
+            gopls = {
+              gofumpt = true, -- use gofumpt for stricter formatting
+              analyses = {
+                unusedparams = true,
+              },
+              staticcheck = true,
+            },
+          },
+          on_attach = function(client, bufnr)
+            -- Format and organize imports on save
+            vim.api.nvim_create_autocmd("BufWritePre", {
+              buffer = bufnr,
+              callback = function()
+                -- Organize imports
+                local params = vim.lsp.util.make_range_params()
+                params.context = { only = { "source.organizeImports" } }
+                local result = vim.lsp.buf_request_sync(0, "textDocument/codeAction", params, 1000)
+                for _, res in pairs(result or {}) do
+                  for _, r in pairs(res.result or {}) do
+                    if r.edit then
+                      vim.lsp.util.apply_workspace_edit(r.edit, "utf-8")
+                    end
+                  end
+                end
+                -- Format
+                vim.lsp.buf.format({ async = false })
+              end,
+            })
+          end,
+        },
         rust_analyzer = {},
+        clojure_lsp = {},
       },
       -- you can do any additional lsp server setup here
       -- return true if you don't want this server to be setup with lspconfig
@@ -149,6 +181,7 @@ return {
         -- Add any additional on_attach functionality here
         -- e.g. keymaps, formatting, etc.
         vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Code action" })
+        vim.keymap.set("n", "<leader>ic", "<cmd>Telescope lsp_incoming_calls<CR>", { buffer = bufnr, desc = "Incoming calls" })
 
         if client.server_capabilities.documentHighlightProvider then
           vim.api.nvim_create_augroup("LspDocumentHighlight", { clear = true })
@@ -171,7 +204,6 @@ return {
           vim.keymap.set("n", "gd", function()
             require("telescope.builtin").lsp_definitions({
               show_line = false,
-              jump_type = "never",
             })
           end, { buffer = bufnr, desc = "Go to definition" })
           vim.keymap.set("n", "gr", function()
