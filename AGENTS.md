@@ -23,10 +23,6 @@ LSP is managed through a chain: **Mason → mason-lspconfig → nvim-lspconfig**
 ### Completion
 Uses nvim-cmp with sources: LSP, LuaSnip snippets, buffer, and path completions.
 
-### AI Integration
-- `minuet-ai.nvim` - Inline AI suggestions using Claude (requires `ANTHROPIC_API_KEY` env var)
-  - `<C-y>` accept, `<C-l>` accept line, `<C-n>`/`<C-p>` cycle, `<C-e>` dismiss
-
 ## Notable Custom Keymaps
 
 | Key | Mode | Action |

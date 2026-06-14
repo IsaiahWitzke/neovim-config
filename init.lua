@@ -48,26 +48,6 @@ vim.keymap.set("n", "<leader>e", "<Cmd>Neotree reveal<CR>")
 vim.keymap.set("n", "<leader>E", "<Cmd>Neotree toggle<CR>")
 -- colorscheme set in lua/plugins/colorscheme.lua
 
-local lspconfig = require('lspconfig')
-
--- Configure pyright
--- lspconfig.pyright.setup{}
-
--- Optional: Add keybindings for code actions
-local on_attach = function(client, bufnr)
-  local opts = { noremap=true, silent=true }
-
-  -- Keybinding for code actions (e.g., <leader>ca)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
-  -- or using telescope
-  -- vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>ca', '<cmd>Telescope lsp_code_actions<CR>', opts)
-end
-
--- Initialize pyright with on_attach
-lspconfig.pyright.setup{
-  on_attach = on_attach
-}
-
 vim.keymap.set("t", "<Esc>", [[<C-\><C-n>]])
 --
 -- vim.keymap.set("n", "<leader>ts", [[<C-w>s <C-w>j <cmd>terminal<CR>]])

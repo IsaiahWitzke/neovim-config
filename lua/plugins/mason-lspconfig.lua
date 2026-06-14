@@ -6,6 +6,7 @@ return {
   lazy = false,
   opts = {
     ensure_installed = { "lua_ls", "pyright", "ts_ls", "gopls", "rust_analyzer", "clojure_lsp" },
+    automatic_enable = false,
   },
   config = true,
 }

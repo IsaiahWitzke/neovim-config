@@ -10,6 +10,25 @@ function goto_c_implementation()
   end
 end
 
+
+local function get_repo_python_path(root_dir)
+  if not root_dir then
+    return nil
+  end
+
+  local uv = vim.uv or vim.loop
+  for _, venv_name in ipairs({ ".venv", "venv" }) do
+    local venv_dir = root_dir .. "/" .. venv_name
+    local python_path = venv_dir .. "/bin/python"
+    local stat = uv.fs_stat(python_path)
+    if stat and stat.type == "file" then
+      return python_path
+    end
+  end
+
+  return nil
+end
+
 return {
   "neovim/nvim-lspconfig",
   -- event = "LazyFile",
@@ -79,6 +98,18 @@ return {
           },
         },
         pyright = {
+          on_new_config = function(config, root_dir)
+            local python_path = get_repo_python_path(root_dir)
+            if not python_path then
+              return
+            end
+
+            config.settings = vim.tbl_deep_extend("force", config.settings or {}, {
+              python = {
+                pythonPath = python_path,
+              },
+            })
+          end,
           settings = {
             pyright = {
               disableOrganizeImports = true,
